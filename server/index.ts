@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import { UserModel, IUserDocument } from "./models/users";
+import { WordModel, IWordDocument } from "./models/words";
 import auth from "./middleware/auth";
 
 const app: express.Application = express();
@@ -94,7 +95,7 @@ app.get("/api/users/auth", auth, (req, res) => {
   }
 });
 
-app.post("/api/users/logout", auth, (req, res) => {
+app.get("/api/users/logout", auth, (req, res) => {
   // 로그아웃하려는 유저를 데이터베이스에서 찾아서
   // 그 유저의 토큰을 지워준다
   if (req.user) {
@@ -111,3 +112,21 @@ app.post("/api/users/logout", auth, (req, res) => {
 });
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));
+
+app.get("/api/words", async (req, res) => {
+  const words = await WordModel.find({}).lean();
+  return res.json({ success: true, words });
+});
+
+app.post("/api/words", async (req, res) => {
+  const word = new WordModel(req.body);
+  word.save((err, doc) => {
+    if (err) return res.json({ success: false, err });
+    return res.status(200).send({ success: true });
+  });
+});
+
+app.delete("/api/words/:id", async (req, res) => {
+  await WordModel.deleteOne({ _id: req.params.id });
+  return res.status(200).send({ success: true });
+});

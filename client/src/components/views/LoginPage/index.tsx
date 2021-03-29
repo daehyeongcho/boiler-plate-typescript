@@ -22,7 +22,14 @@ const LoginPage = (props: RouteComponentProps) => {
     // onSubmit(form);
     console.log("Email: ", email);
     console.log("Password: ", password);
-    dispatch(loginUser(form));
+    dispatch(loginUser(form)).then((res) => {
+      if (res.payload.data.loginSuccess) {
+        props.history.push("/");
+      } else {
+        console.log(res.payload.data);
+        alert("로그인을 실패했습니다");
+      }
+    });
   };
   return (
     <div
